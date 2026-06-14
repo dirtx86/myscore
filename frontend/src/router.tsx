@@ -12,6 +12,7 @@ import PredictionsPage from './pages/PredictionsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import StatsPage from './pages/StatsPage';
 import AdminPage from './pages/AdminPage';
+import AuthCallbackPage from './pages/AuthCallbackPage';
 
 function RootLayout() {
   return (
@@ -69,6 +70,7 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      { path: '/auth/callback', element: <AuthCallbackPage /> },
       {
         element: <AdminRoute />,
         children: [

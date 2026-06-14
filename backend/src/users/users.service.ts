@@ -22,6 +22,21 @@ export class UsersService {
     return this.userRepo.find({ order: { createdAt: 'ASC' } });
   }
 
+  async findOrCreateGoogleUser(googleId: string, email: string, displayName: string): Promise<User> {
+    let user = await this.userRepo.findOne({ where: { googleId } });
+    if (user) return user;
+
+    user = await this.userRepo.findOne({ where: { email } });
+    if (user) {
+      user.googleId = googleId;
+      return this.userRepo.save(user);
+    }
+
+    return this.userRepo.save(
+      this.userRepo.create({ googleId, email, displayName, passwordHash: null, mustChangePassword: false }),
+    );
+  }
+
   async create(data: {
     email: string;
     displayName: string;

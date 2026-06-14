@@ -20,8 +20,11 @@ export class User {
   email: string;
 
   @Exclude()
-  @Column()
-  passwordHash: string;
+  @Column({ nullable: true })
+  passwordHash: string | null;
+
+  @Column({ nullable: true, unique: true })
+  googleId: string | null;
 
   @Column()
   displayName: string;
