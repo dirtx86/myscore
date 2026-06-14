@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { getDatabaseConfig } from './database.config';
 import { AuthModule } from './auth/auth.module';
@@ -17,6 +18,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 @Module({
   imports: [
     TypeOrmModule.forRoot(getDatabaseConfig()),
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     TournamentsModule,

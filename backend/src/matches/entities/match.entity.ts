@@ -67,4 +67,7 @@ export class Match {
 
   @Column({ nullable: true, type: 'int' })
   awayScore: number;
+
+  @Column({ nullable: true, type: 'int' })
+  externalId: number | null;
 }

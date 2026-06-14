@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Match } from './entities/match.entity';
 import { MatchesService } from './matches.service';
 import { MatchesController } from './matches.controller';
+import { MatchSyncService } from './match-sync.service';
 import { TournamentsModule } from '../tournaments/tournaments.module';
 import { LeaderboardModule } from '../leaderboard/leaderboard.module';
 
@@ -12,7 +13,7 @@ import { LeaderboardModule } from '../leaderboard/leaderboard.module';
     TournamentsModule,
     forwardRef(() => LeaderboardModule),
   ],
-  providers: [MatchesService],
+  providers: [MatchesService, MatchSyncService],
   controllers: [MatchesController],
   exports: [MatchesService],
 })
