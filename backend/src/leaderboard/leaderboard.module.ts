@@ -10,7 +10,7 @@ import { MatchesModule } from '../matches/matches.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([LeaderboardEntry, Prediction]),
-    PredictionsModule,
+    forwardRef(() => PredictionsModule),
     forwardRef(() => MatchesModule),
   ],
   providers: [LeaderboardService],

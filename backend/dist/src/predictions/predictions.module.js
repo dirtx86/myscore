@@ -22,7 +22,7 @@ exports.PredictionsModule = PredictionsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([prediction_entity_1.Prediction]),
-            matches_module_1.MatchesModule,
+            (0, common_1.forwardRef)(() => matches_module_1.MatchesModule),
             tournaments_module_1.TournamentsModule,
         ],
         providers: [predictions_service_1.PredictionsService, scoring_service_1.ScoringService],

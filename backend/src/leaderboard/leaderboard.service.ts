@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LeaderboardEntry } from './entities/leaderboard-entry.entity';
@@ -10,7 +10,7 @@ export class LeaderboardService {
   constructor(
     @InjectRepository(LeaderboardEntry) private entryRepo: Repository<LeaderboardEntry>,
     @InjectRepository(Prediction) private predRepo: Repository<Prediction>,
-    private scoringService: ScoringService,
+    @Inject(forwardRef(() => ScoringService)) private scoringService: ScoringService,
   ) {}
 
   async getLeaderboard(tournamentId: string): Promise<LeaderboardEntry[]> {

@@ -83,6 +83,7 @@ exports.LeaderboardService = LeaderboardService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(leaderboard_entry_entity_1.LeaderboardEntry)),
     __param(1, (0, typeorm_1.InjectRepository)(prediction_entity_1.Prediction)),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => scoring_service_1.ScoringService))),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         scoring_service_1.ScoringService])

@@ -66,6 +66,7 @@ exports.PredictionsService = PredictionsService;
 exports.PredictionsService = PredictionsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(prediction_entity_1.Prediction)),
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => matches_service_1.MatchesService))),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         matches_service_1.MatchesService,
         tournaments_service_1.TournamentsService])

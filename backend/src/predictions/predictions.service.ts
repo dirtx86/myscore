@@ -1,5 +1,6 @@
 import {
   Injectable, NotFoundException, ForbiddenException, ConflictException,
+  Inject, forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +14,7 @@ import { UpdatePredictionDto } from './dto/update-prediction.dto';
 export class PredictionsService {
   constructor(
     @InjectRepository(Prediction) private predRepo: Repository<Prediction>,
-    private matchesService: MatchesService,
+    @Inject(forwardRef(() => MatchesService)) private matchesService: MatchesService,
     private tournamentsService: TournamentsService,
   ) {}
 

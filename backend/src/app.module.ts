@@ -9,6 +9,8 @@ import { TeamsModule } from './teams/teams.module';
 import { MatchesModule } from './matches/matches.module';
 import { PredictionsModule } from './predictions/predictions.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import { StatsModule } from './stats/stats.module';
+import { SeedModule } from './seed/seed.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -22,6 +24,8 @@ import { RolesGuard } from './common/guards/roles.guard';
     MatchesModule,
     PredictionsModule,
     LeaderboardModule,
+    StatsModule,
+    SeedModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

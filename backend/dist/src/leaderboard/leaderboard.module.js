@@ -22,7 +22,7 @@ exports.LeaderboardModule = LeaderboardModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([leaderboard_entry_entity_1.LeaderboardEntry, prediction_entity_1.Prediction]),
-            predictions_module_1.PredictionsModule,
+            (0, common_1.forwardRef)(() => predictions_module_1.PredictionsModule),
             (0, common_1.forwardRef)(() => matches_module_1.MatchesModule),
         ],
         providers: [leaderboard_service_1.LeaderboardService],
