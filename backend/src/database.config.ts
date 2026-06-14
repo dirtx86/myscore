@@ -12,6 +12,6 @@ export function getDatabaseConfig(): TypeOrmModuleOptions {
     migrations: [__dirname + '/../migrations/*.{ts,js}'],
     synchronize: false,
     logging: false,
-    migrationsRun: false,
+    migrationsRun: true,
   };
 }
