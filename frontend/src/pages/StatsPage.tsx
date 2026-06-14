@@ -67,12 +67,12 @@ export default function StatsPage() {
     : null;
 
   // Points bar chart
-  const maxAvg = stats
+  const maxAvg = stats?.pointsByRound?.length
     ? Math.max(...stats.pointsByRound.map((r) => r.avgPts), 0.1)
     : 1;
 
   // First consensus match
-  const consensusItem = stats?.consensusByMatch[0];
+  const consensusItem = stats?.consensusByMatch?.[0];
 
   return (
     <div style={{ padding: '24px 20px', maxWidth: 900, margin: '0 auto' }}>
