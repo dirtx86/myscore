@@ -13,14 +13,27 @@ export class LeaderboardService {
     @Inject(forwardRef(() => ScoringService)) private scoringService: ScoringService,
   ) {}
 
-  async getLeaderboard(tournamentId: string): Promise<LeaderboardEntry[]> {
-    return this.entryRepo.createQueryBuilder('e')
+  async getLeaderboard(tournamentId: string): Promise<(LeaderboardEntry & { rank: number })[]> {
+    const entries = await this.entryRepo.createQueryBuilder('e')
       .leftJoinAndSelect('e.user', 'u')
       .where('e.tournamentId = :tournamentId', { tournamentId })
       .orderBy('e.totalPts', 'DESC')
       .addOrderBy('e.fullCount', 'DESC')
       .addOrderBy('e.totoCount', 'DESC')
       .getMany();
+
+    let rank = 1;
+    return entries.map((e, i) => {
+      if (i > 0) {
+        const prev = entries[i - 1] as any;
+        const sameRank =
+          prev.totalPts === e.totalPts &&
+          prev.fullCount === e.fullCount &&
+          prev.totoCount === e.totoCount;
+        if (!sameRank) rank = i + 1;
+      }
+      return { ...e, rank };
+    });
   }
 
   async recalculateForMatch(

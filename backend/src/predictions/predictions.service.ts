@@ -18,13 +18,14 @@ export class PredictionsService {
     private tournamentsService: TournamentsService,
   ) {}
 
-  async findMyPredictions(userId: string, tournamentId: string): Promise<Prediction[]> {
+  async findMyPredictions(userId: string, tournamentId?: string): Promise<Prediction[]> {
+    const tid = tournamentId || (await this.tournamentsService.findActive()).id;
     return this.predRepo.createQueryBuilder('p')
       .leftJoinAndSelect('p.match', 'm')
       .leftJoinAndSelect('m.homeTeam', 'ht')
       .leftJoinAndSelect('m.awayTeam', 'at')
       .where('p.userId = :userId', { userId })
-      .andWhere('m.tournamentId = :tournamentId', { tournamentId })
+      .andWhere('m.tournamentId = :tid', { tid })
       .orderBy('m.kickoffAt', 'ASC')
       .getMany();
   }
