@@ -1,6 +1,7 @@
 // frontend/src/router.tsx
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastHost } from './components/ui/Toast';
 import AppShell from './components/layout/AppShell';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -15,7 +16,9 @@ import AdminPage from './pages/AdminPage';
 function RootLayout() {
   return (
     <AuthProvider>
-      <Outlet />
+      <ToastHost>
+        <Outlet />
+      </ToastHost>
     </AuthProvider>
   );
 }
