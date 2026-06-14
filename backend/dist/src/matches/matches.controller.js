@@ -21,9 +21,13 @@ const update_match_dto_1 = require("./dto/update-match.dto");
 const publish_result_dto_1 = require("./dto/publish-result.dto");
 const roles_decorator_1 = require("../common/decorators/roles.decorator");
 const user_entity_1 = require("../users/entities/user.entity");
+const leaderboard_service_1 = require("../leaderboard/leaderboard.service");
+const tournaments_service_1 = require("../tournaments/tournaments.service");
 let MatchesController = class MatchesController {
-    constructor(matchesService) {
+    constructor(matchesService, leaderboardService, tournamentsService) {
         this.matchesService = matchesService;
+        this.leaderboardService = leaderboardService;
+        this.tournamentsService = tournamentsService;
     }
     findAll(tournamentId, group, status, search) {
         return this.matchesService.findAll(tournamentId, { group, status, search });
@@ -40,8 +44,15 @@ let MatchesController = class MatchesController {
     remove(id) {
         return this.matchesService.remove(id);
     }
-    publishResult(id, dto) {
-        return this.matchesService.publishResult(id, dto);
+    async publishResult(id, dto) {
+        const match = await this.matchesService.publishResult(id, dto);
+        const rules = await this.tournamentsService.getScoreRules(match.tournamentId);
+        await this.leaderboardService.recalculateForMatch(id, dto.homeScore, dto.awayScore, match.tournamentId, {
+            totoPts: rules.totoPts,
+            fullScorePts: rules.fullScorePts,
+            goalDiffPts: rules.goalDiffPts,
+        });
+        return match;
     }
     updateStatus(id, dto) {
         return this.matchesService.update(id, dto);
@@ -100,7 +111,7 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, publish_result_dto_1.PublishResultDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], MatchesController.prototype, "publishResult", null);
 __decorate([
     (0, common_1.Patch)('matches/:id/status'),
@@ -115,6 +126,9 @@ exports.MatchesController = MatchesController = __decorate([
     (0, swagger_1.ApiTags)('matches'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [matches_service_1.MatchesService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => leaderboard_service_1.LeaderboardService))),
+    __metadata("design:paramtypes", [matches_service_1.MatchesService,
+        leaderboard_service_1.LeaderboardService,
+        tournaments_service_1.TournamentsService])
 ], MatchesController);
 //# sourceMappingURL=matches.controller.js.map

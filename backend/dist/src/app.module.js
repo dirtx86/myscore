@@ -17,6 +17,7 @@ const tournaments_module_1 = require("./tournaments/tournaments.module");
 const teams_module_1 = require("./teams/teams.module");
 const matches_module_1 = require("./matches/matches.module");
 const predictions_module_1 = require("./predictions/predictions.module");
+const leaderboard_module_1 = require("./leaderboard/leaderboard.module");
 const jwt_auth_guard_1 = require("./common/guards/jwt-auth.guard");
 const roles_guard_1 = require("./common/guards/roles.guard");
 let AppModule = class AppModule {
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             teams_module_1.TeamsModule,
             matches_module_1.MatchesModule,
             predictions_module_1.PredictionsModule,
+            leaderboard_module_1.LeaderboardModule,
         ],
         providers: [
             { provide: core_1.APP_GUARD, useClass: jwt_auth_guard_1.JwtAuthGuard },

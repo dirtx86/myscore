@@ -12,12 +12,18 @@ const typeorm_1 = require("@nestjs/typeorm");
 const match_entity_1 = require("./entities/match.entity");
 const matches_service_1 = require("./matches.service");
 const matches_controller_1 = require("./matches.controller");
+const tournaments_module_1 = require("../tournaments/tournaments.module");
+const leaderboard_module_1 = require("../leaderboard/leaderboard.module");
 let MatchesModule = class MatchesModule {
 };
 exports.MatchesModule = MatchesModule;
 exports.MatchesModule = MatchesModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([match_entity_1.Match])],
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([match_entity_1.Match]),
+            tournaments_module_1.TournamentsModule,
+            (0, common_1.forwardRef)(() => leaderboard_module_1.LeaderboardModule),
+        ],
         providers: [matches_service_1.MatchesService],
         controllers: [matches_controller_1.MatchesController],
         exports: [matches_service_1.MatchesService],

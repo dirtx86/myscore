@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Patch, Delete, Param, Body, Query,
+  Controller, Get, Post, Patch, Delete, Param, Body, Query, Inject, forwardRef,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
@@ -8,12 +8,18 @@ import { UpdateMatchDto } from './dto/update-match.dto';
 import { PublishResultDto } from './dto/publish-result.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
+import { TournamentsService } from '../tournaments/tournaments.service';
 
 @ApiTags('matches')
 @ApiBearerAuth()
 @Controller()
 export class MatchesController {
-  constructor(private matchesService: MatchesService) {}
+  constructor(
+    private matchesService: MatchesService,
+    @Inject(forwardRef(() => LeaderboardService)) private leaderboardService: LeaderboardService,
+    private tournamentsService: TournamentsService,
+  ) {}
 
   @Get('tournaments/:tournamentId/matches')
   @ApiQuery({ name: 'group', required: false })
@@ -53,8 +59,21 @@ export class MatchesController {
 
   @Patch('matches/:id/result')
   @Roles(UserRole.ADMIN)
-  publishResult(@Param('id') id: string, @Body() dto: PublishResultDto) {
-    return this.matchesService.publishResult(id, dto);
+  async publishResult(@Param('id') id: string, @Body() dto: PublishResultDto) {
+    const match = await this.matchesService.publishResult(id, dto);
+    const rules = await this.tournamentsService.getScoreRules(match.tournamentId);
+    await this.leaderboardService.recalculateForMatch(
+      id,
+      dto.homeScore,
+      dto.awayScore,
+      match.tournamentId,
+      {
+        totoPts: rules.totoPts,
+        fullScorePts: rules.fullScorePts,
+        goalDiffPts: rules.goalDiffPts,
+      },
+    );
+    return match;
   }
 
   @Patch('matches/:id/status')
