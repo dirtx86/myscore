@@ -1,0 +1,259 @@
+/* frontend/src/styles/global.css */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --font-sans: "Archivo", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --accent: #ffd23f;
+  --accent-2: #ffb020;
+  --accent-ink: #15120a;
+  --live: #19e08a;
+  --live-ink: #042315;
+  --danger: #ff4d5e;
+  --warn: #ffb020;
+  --info: #4aa8ff;
+  --r-xs: 6px;
+  --r-sm: 9px;
+  --r: 13px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --maxw: 1240px;
+}
+
+[data-theme="dark"] {
+  --bg-0: #070a0f;
+  --bg-1: #0e131b;
+  --bg-2: #161d27;
+  --bg-3: #1f2834;
+  --bg-inset: #0a0e14;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --text: #eef3f9;
+  --text-dim: #97a4b5;
+  --text-mute: #5d6b7c;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 18px 40px -20px rgba(0, 0, 0, 0.8);
+  --shadow-sm: 0 8px 24px -16px rgba(0, 0, 0, 0.8);
+  --grain: rgba(255, 255, 255, 0.02);
+  --field-grad: radial-gradient(
+    120% 120% at 50% -10%,
+    #11202a 0%,
+    #070a0f 60%
+  );
+}
+
+[data-theme="light"] {
+  --bg-0: #eef1f6;
+  --bg-1: #ffffff;
+  --bg-2: #f3f6fa;
+  --bg-3: #e7ecf3;
+  --bg-inset: #f7f9fc;
+  --line: rgba(13, 22, 38, 0.1);
+  --line-2: rgba(13, 22, 38, 0.18);
+  --text: #0d1622;
+  --text-dim: #54647a;
+  --text-mute: #8a99ac;
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 18px 40px -24px rgba(20, 30, 50, 0.35);
+  --shadow-sm: 0 10px 24px -18px rgba(20, 30, 50, 0.3);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: var(--accent-ink);
+  font-weight: 600;
+  border-radius: var(--r);
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 var(--accent);
+  transition: box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 16px -4px var(--accent);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Score inputs ─────────────────────────────────────── */
+
+.score-input {
+  width: 56px;
+  height: 56px;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--text);
+}
+
+.score-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 210, 63, 0.18);
+}
+
+.step-btn {
+  width: 28px;
+  height: 24px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  border-radius: var(--r-xs);
+  cursor: pointer;
+}
+
+.step-btn:hover {
+  background: var(--bg-3);
+}
+
+/* ── Status pills ─────────────────────────────────────── */
+
+.pill-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(25, 224, 138, 0.12);
+  color: var(--live);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.pill-live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--live);
+  animation: pulse 1.4s ease infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+}
+
+/* ── Rank badges ──────────────────────────────────────── */
+
+.rank-1 {
+  background: linear-gradient(135deg, #ffd700, #ffb300);
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #c0c8d4, #a0aab5);
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #b8651e);
+}
+
+/* ── Table current-user highlight ────────────────────── */
+
+.tbl tr.me {
+  background: rgba(255, 210, 63, 0.06);
+}
+
+/* ── Filter chips ─────────────────────────────────────── */
+
+.chip {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chip.sel {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+}
+
+/* ── Skeleton loader ──────────────────────────────────── */
+
+.skel {
+  background: linear-gradient(
+    90deg,
+    var(--bg-2) 25%,
+    var(--bg-3) 50%,
+    var(--bg-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-sm);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── Toast notifications ──────────────────────────────── */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  box-shadow: var(--shadow);
+  min-width: 240px;
+  z-index: 9999;
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
