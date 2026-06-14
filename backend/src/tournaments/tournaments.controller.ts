@@ -19,6 +19,12 @@ export class TournamentsController {
     return this.tournamentsService.getScoreRules(id);
   }
 
+  @Patch(':id')
+  @Roles(UserRole.ADMIN)
+  update(@Param('id') id: string, @Body() body: { lockMinutes?: number }) {
+    return this.tournamentsService.update(id, body);
+  }
+
   @Patch(':id/score-rules')
   @Roles(UserRole.ADMIN)
   updateScoreRules(@Param('id') id: string, @Body() dto: UpdateScoreRulesDto) {

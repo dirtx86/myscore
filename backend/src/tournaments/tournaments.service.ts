@@ -41,6 +41,12 @@ export class TournamentsService {
     return saved;
   }
 
+  async update(id: string, data: { lockMinutes?: number }): Promise<Tournament> {
+    const t = await this.findById(id);
+    Object.assign(t, data);
+    return this.tournamentRepo.save(t);
+  }
+
   async createWithScoreRule(data: { name: string; year: number }): Promise<Tournament> {
     const tournament = this.tournamentRepo.create(data);
     const saved = await this.tournamentRepo.save(tournament);

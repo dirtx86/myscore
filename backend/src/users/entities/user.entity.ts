@@ -2,6 +2,7 @@ import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Prediction } from '../../predictions/entities/prediction.entity';
 import { LeaderboardEntry } from '../../leaderboard/entities/leaderboard-entry.entity';
 
@@ -18,6 +19,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   passwordHash: string;
 
