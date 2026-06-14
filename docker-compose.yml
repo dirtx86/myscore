@@ -45,6 +45,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+        VITE_ENVIRONMENT: ${VITE_ENVIRONMENT:-}
     depends_on:
       - backend
     ports:

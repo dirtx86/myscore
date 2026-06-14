@@ -14,11 +14,14 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401, clear auth state and redirect to login
+// On 401 from a protected resource, clear auth state and redirect to login.
+// Auth endpoints (/auth/login, /auth/register, etc.) handle their own 401s.
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url: string = error.config?.url ?? '';
+    const isAuthEndpoint = url.includes('/auth/');
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('mscore_token');
       window.location.href = '/login';
     }

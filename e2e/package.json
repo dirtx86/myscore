@@ -1,0 +1,21 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:staging": "BASE_URL=http://myscore.neopacific.tech API_URL=http://myscore.neopacific.tech/api playwright test",
+    "test:prod": "BASE_URL=http://myscore.pacifictechnologies.mv API_URL=http://myscore.pacifictechnologies.mv/api playwright test",
+    "report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
+  }
+}

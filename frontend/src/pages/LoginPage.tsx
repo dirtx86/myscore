@@ -17,6 +17,12 @@ interface DecodedToken {
 
 type Step = 'login' | 'change-password';
 
+const ENV = import.meta.env.VITE_ENVIRONMENT;
+const ENV_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+  production: { bg: 'rgba(34,197,94,0.12)', color: '#22c55e', border: 'rgba(34,197,94,0.3)' },
+  staging:    { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: 'rgba(245,158,11,0.3)' },
+};
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -83,7 +89,7 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', display: 'flex', background: 'var(--bg-0)',
+      minHeight: '100vh', display: 'flex', background: 'var(--bg-0)', position: 'relative',
     }}>
       {/* Left brand panel — hidden on mobile */}
       <div style={{
@@ -246,6 +252,25 @@ export default function LoginPage() {
           )}
         </div>
       </div>
+
+      {ENV && ENV_STYLE[ENV] && (
+        <div
+          data-testid="env-badge"
+          style={{
+            position: 'fixed', bottom: 18, right: 20,
+            padding: '4px 12px', borderRadius: 99,
+            background: ENV_STYLE[ENV].bg,
+            color: ENV_STYLE[ENV].color,
+            border: `1px solid ${ENV_STYLE[ENV].border}`,
+            fontSize: 11, fontWeight: 700,
+            fontFamily: 'var(--font-mono)',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            userSelect: 'none',
+          }}
+        >
+          {ENV}
+        </div>
+      )}
     </div>
   );
 }

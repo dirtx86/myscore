@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../hooks/useAuth';
 
 export default function AuthCallbackPage() {
@@ -9,8 +10,13 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get('token');
     if (token) {
-      login(token);
-      navigate('/', { replace: true });
+      try {
+        jwtDecode(token); // throws if malformed
+        login(token);
+        navigate('/', { replace: true });
+      } catch {
+        navigate('/login', { replace: true });
+      }
     } else {
       navigate('/login', { replace: true });
     }
