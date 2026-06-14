@@ -30,3 +30,9 @@ coverage/
 
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Compiled config files (generated from *.ts by tsc -b)
+frontend/vite.config.js
+frontend/vite.config.d.ts
+frontend/tailwind.config.js
+frontend/tailwind.config.d.ts
