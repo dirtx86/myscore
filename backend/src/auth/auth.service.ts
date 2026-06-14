@@ -53,8 +53,8 @@ export class AuthService {
     return { password: newPassword, message: 'Your new password is shown below. Log in and change it immediately.' };
   }
 
-  private signToken(user: { id: string; email: string; role: UserRole; mustChangePassword: boolean }) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+  private signToken(user: { id: string; email: string; displayName: string; role: UserRole; mustChangePassword: boolean }) {
+    const payload = { sub: user.id, email: user.email, role: user.role, displayName: user.displayName };
     return {
       accessToken: this.jwtService.sign(payload),
       user: {

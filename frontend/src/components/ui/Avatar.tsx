@@ -4,6 +4,7 @@ const AVATAR_COLORS = [
 ];
 
 function hashString(str: string): number {
+  if (!str) return 0;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
@@ -12,6 +13,7 @@ function hashString(str: string): number {
 }
 
 function getInitials(displayName: string): string {
+  if (!displayName) return '?';
   return displayName
     .trim()
     .split(/\s+/)
