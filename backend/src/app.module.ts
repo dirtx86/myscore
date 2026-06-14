@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { TeamsModule } from './teams/teams.module';
 import { MatchesModule } from './matches/matches.module';
+import { PredictionsModule } from './predictions/predictions.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -18,6 +19,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     TournamentsModule,
     TeamsModule,
     MatchesModule,
+    PredictionsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

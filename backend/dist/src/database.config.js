@@ -1,0 +1,19 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDatabaseConfig = getDatabaseConfig;
+function getDatabaseConfig() {
+    return {
+        type: 'postgres',
+        host: process.env.POSTGRES_HOST || 'localhost',
+        port: parseInt(process.env.POSTGRES_PORT || '5432'),
+        username: process.env.POSTGRES_USER || 'myscore',
+        password: process.env.POSTGRES_PASSWORD || 'myscore_secret',
+        database: process.env.POSTGRES_DB || 'myscore',
+        entities: [__dirname + '/**/*.entity.{ts,js}'],
+        migrations: [__dirname + '/../migrations/*.{ts,js}'],
+        synchronize: false,
+        logging: false,
+        migrationsRun: false,
+    };
+}
+//# sourceMappingURL=database.config.js.map
