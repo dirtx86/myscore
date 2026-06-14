@@ -56,6 +56,12 @@
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset,
     0 18px 40px -24px rgba(20, 30, 50, 0.35);
   --shadow-sm: 0 10px 24px -18px rgba(20, 30, 50, 0.3);
+  --grain: rgba(0, 0, 0, 0.015);
+  --field-grad: radial-gradient(
+    120% 120% at 50% -10%,
+    #dce8f0 0%,
+    #eef1f6 60%
+  );
 }
 
 *,
