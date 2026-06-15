@@ -3,7 +3,8 @@ import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
 import * as https from 'https';
-import { Match, MatchStatus } from './entities/match.entity';
+import { Match, MatchStage, MatchStatus } from './entities/match.entity';
+import { Team } from '../teams/entities/team.entity';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { TournamentsService } from '../tournaments/tournaments.service';
 
@@ -14,11 +15,25 @@ interface FdoScore {
 
 interface FdoMatch {
   id: number;
+  utcDate: string;
   status: string;
-  homeTeam: { tla: string };
-  awayTeam: { tla: string };
+  stage: string;
+  group: string | null;
+  venue: string | null;
+  homeTeam: { tla: string; name: string };
+  awayTeam: { tla: string; name: string };
   score: { fullTime: FdoScore };
 }
+
+const STAGE_MAP: Record<string, MatchStage> = {
+  GROUP_STAGE: MatchStage.GROUP,
+  ROUND_OF_32: MatchStage.R32,
+  ROUND_OF_16: MatchStage.R16,
+  QUARTER_FINALS: MatchStage.QF,
+  SEMI_FINALS: MatchStage.SF,
+  THIRD_PLACE: MatchStage.THIRD_PLACE,
+  FINAL: MatchStage.FINAL,
+};
 
 @Injectable()
 export class MatchSyncService implements OnModuleInit {
@@ -27,6 +42,7 @@ export class MatchSyncService implements OnModuleInit {
 
   constructor(
     @InjectRepository(Match) private matchRepo: Repository<Match>,
+    @InjectRepository(Team) private teamRepo: Repository<Team>,
     @Inject(forwardRef(() => LeaderboardService)) private leaderboardService: LeaderboardService,
     private tournamentsService: TournamentsService,
   ) {}
@@ -58,6 +74,97 @@ export class MatchSyncService implements OnModuleInit {
       );
       req.on('error', reject);
     });
+  }
+
+  private fdoStatusToOurs(fdoStatus: string): MatchStatus {
+    if (fdoStatus === 'FINISHED') return MatchStatus.COMPLETED;
+    if (fdoStatus === 'IN_PLAY' || fdoStatus === 'PAUSED') return MatchStatus.LIVE;
+    return MatchStatus.SCHEDULED;
+  }
+
+  async importMatches(tournamentId: string): Promise<{ created: number; skipped: number; updated: number; errors: string[] }> {
+    if (!this.apiKey) throw new Error('FOOTBALL_DATA_API_KEY not configured');
+
+    const data = await this.fetch<{ matches: FdoMatch[] }>('/competitions/WC/matches');
+    const fdoMatches = data.matches ?? [];
+
+    const teams = await this.teamRepo.find({ where: { tournamentId } });
+    const teamByTla = new Map(teams.map((t) => [t.fifaCode.toUpperCase(), t]));
+
+    let created = 0;
+    let skipped = 0;
+    let updated = 0;
+    const errors: string[] = [];
+
+    for (const fdoMatch of fdoMatches) {
+      const stage = STAGE_MAP[fdoMatch.stage];
+      if (!stage) { skipped++; continue; }
+
+      const homeTla = fdoMatch.homeTeam.tla?.toUpperCase();
+      const awayTla = fdoMatch.awayTeam.tla?.toUpperCase();
+      if (!homeTla || !awayTla) { skipped++; continue; }
+
+      const homeTeam = teamByTla.get(homeTla);
+      const awayTeam = teamByTla.get(awayTla);
+      if (!homeTeam || !awayTeam) {
+        errors.push(`Teams not found: ${homeTla} vs ${awayTla} (stage: ${fdoMatch.stage})`);
+        skipped++;
+        continue;
+      }
+
+      const status = this.fdoStatusToOurs(fdoMatch.status);
+      const fullTime = fdoMatch.score?.fullTime;
+      const hasScore = fullTime?.home != null && fullTime?.away != null;
+      const groupLabel = fdoMatch.group ? fdoMatch.group.replace('GROUP_', '').slice(0, 1) : undefined;
+
+      const existing = await this.matchRepo.findOne({ where: { externalId: fdoMatch.id } });
+
+      if (existing) {
+        // Update status and scores for completed/live matches not yet reflected in our DB
+        if (existing.status !== MatchStatus.COMPLETED && status === MatchStatus.COMPLETED && hasScore) {
+          existing.status = MatchStatus.COMPLETED;
+          existing.homeScore = fullTime.home!;
+          existing.awayScore = fullTime.away!;
+          await this.matchRepo.save(existing);
+          const rules = await this.tournamentsService.getScoreRules(tournamentId);
+          await this.leaderboardService.recalculateForMatch(
+            existing.id, fullTime.home!, fullTime.away!, tournamentId,
+            { totoPts: rules.totoPts, fullScorePts: rules.fullScorePts, goalDiffPts: rules.goalDiffPts },
+          );
+          updated++;
+        }
+        continue;
+      }
+
+      const match = this.matchRepo.create({
+        tournamentId,
+        homeTeamId: homeTeam.id,
+        awayTeamId: awayTeam.id,
+        kickoffAt: new Date(fdoMatch.utcDate),
+        stage,
+        ...(groupLabel ? { groupLabel } : {}),
+        ...(fdoMatch.venue ? { venue: fdoMatch.venue } : {}),
+        externalId: fdoMatch.id,
+        status,
+        ...(status === MatchStatus.COMPLETED && hasScore ? { homeScore: fullTime.home!, awayScore: fullTime.away! } : {}),
+        ...(status === MatchStatus.LIVE && hasScore ? { homeScore: fullTime.home!, awayScore: fullTime.away! } : {}),
+      });
+
+      const saved = await this.matchRepo.save(match);
+      created++;
+
+      // Recalculate leaderboard for any completed match imported fresh
+      if (status === MatchStatus.COMPLETED && hasScore) {
+        const rules = await this.tournamentsService.getScoreRules(tournamentId);
+        await this.leaderboardService.recalculateForMatch(
+          saved.id, fullTime.home!, fullTime.away!, tournamentId,
+          { totoPts: rules.totoPts, fullScorePts: rules.fullScorePts, goalDiffPts: rules.goalDiffPts },
+        );
+      }
+    }
+
+    this.logger.log(`Import complete: ${created} created, ${updated} updated, ${skipped} skipped, ${errors.length} errors`);
+    return { created, skipped, updated, errors };
   }
 
   async seedExternalIds(): Promise<void> {
