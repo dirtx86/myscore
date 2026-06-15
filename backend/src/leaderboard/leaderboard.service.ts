@@ -32,7 +32,8 @@ export class LeaderboardService {
           prev.totoCount === e.totoCount;
         if (!sameRank) rank = i + 1;
       }
-      return { ...e, rank };
+      const avatarUrl = e.user?.avatarPath ? `/uploads/${e.user.avatarPath}` : null;
+      return { ...e, rank, user: e.user ? { ...e.user, avatarUrl } : e.user } as any;
     });
   }
 
@@ -59,7 +60,7 @@ export class LeaderboardService {
     }
   }
 
-  private async rebuildUserEntry(
+  async rebuildUserEntry(
     userId: string,
     tournamentId: string,
     rules: ScoreRuleValues,
