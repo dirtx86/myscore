@@ -11,8 +11,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from './entities/user.entity';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const multer = require('multer');
+import { diskStorage } from 'multer';
 
 const UPLOADS_DIR = join(process.cwd(), 'uploads', 'avatars');
 
@@ -39,19 +38,22 @@ export class UsersController {
   @ApiOperation({ summary: 'Upload profile avatar' })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar', {
-    storage: multer.diskStorage({
+    storage: diskStorage({
       destination: UPLOADS_DIR,
-      filename: (req: any, _file: any, cb: any) => cb(null, `${req.user.id}.jpg`),
+      filename: (req: any, _file: any, cb: any) => {
+        if (!req.user?.id) return cb(new Error('Unauthenticated'), false);
+        cb(null, `${req.user.id}.jpg`);
+      },
     }),
     fileFilter: (_req: any, file: any, cb: any) => {
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
-        return cb(new BadRequestException('Only JPEG, PNG, and WebP images are allowed'), false);
+      if (file.mimetype !== 'image/jpeg') {
+        return cb(new BadRequestException('Only JPEG images are allowed'), false);
       }
       cb(null, true);
     },
     limits: { fileSize: 2 * 1024 * 1024 },
   }))
-  async uploadAvatar(@CurrentUser() user: any, @UploadedFile() file: any) {
+  async uploadAvatar(@CurrentUser() user: any, @UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
     const avatarPath = `avatars/${user.id}.jpg`;
     return this.usersService.updateAvatar(user.id, avatarPath);
