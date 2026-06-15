@@ -19,11 +19,21 @@ export interface User {
   id: string;
   email: string;
   displayName: string;
+  nickname: string | null;
+  bio: string | null;
+  department: string | null;
+  favouriteTeamId: string | null;
+  avatarUrl: string | null;
   role: UserRole;
   isActive: boolean;
   mustChangePassword: boolean;
   createdAt: string;
 }
+
+export type UserProfile = Pick<User,
+  'id' | 'email' | 'displayName' | 'nickname' | 'bio' |
+  'department' | 'favouriteTeamId' | 'avatarUrl' | 'role'
+>;
 
 export interface AuthTokenPayload {
   sub: string;
