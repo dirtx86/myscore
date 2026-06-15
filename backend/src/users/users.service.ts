@@ -1,21 +1,43 @@
+// backend/src/users/users.service.ts
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
+  private readonly autoAdminEmails: Set<string>;
+
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
-  ) {}
+  ) {
+    const raw = process.env.ADMIN_EMAILS ?? '';
+    this.autoAdminEmails = new Set(
+      raw.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean),
+    );
+  }
+
+  private roleForEmail(email: string): UserRole {
+    return this.autoAdminEmails.has(email.toLowerCase()) ? UserRole.ADMIN : UserRole.USER;
+  }
+
+  private toProfile(user: User): User & { avatarUrl: string | null } {
+    const avatarUrl = user.avatarPath
+      ? `/uploads/${user.avatarPath}`
+      : null;
+    return { ...user, avatarUrl };
+  }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepo.findOne({ where: { email } });
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.userRepo.findOne({ where: { id } });
+  async findById(id: string): Promise<(User & { avatarUrl: string | null }) | null> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) return null;
+    return this.toProfile(user);
   }
 
   async findAll(): Promise<User[]> {
@@ -33,7 +55,11 @@ export class UsersService {
     }
 
     return this.userRepo.save(
-      this.userRepo.create({ googleId, email, displayName, passwordHash: null, mustChangePassword: false }),
+      this.userRepo.create({
+        googleId, email, displayName,
+        passwordHash: null, mustChangePassword: false,
+        role: this.roleForEmail(email),
+      }),
     );
   }
 
@@ -46,8 +72,23 @@ export class UsersService {
   }): Promise<User> {
     const existing = await this.findByEmail(data.email);
     if (existing) throw new ConflictException('Email already in use');
-    const user = this.userRepo.create(data);
+    const role = data.role ?? this.roleForEmail(data.email);
+    const user = this.userRepo.create({ ...data, role });
     return this.userRepo.save(user);
+  }
+
+  async updateProfile(id: string, dto: UpdateProfileDto): Promise<User & { avatarUrl: string | null }> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    Object.assign(user, dto);
+    const saved = await this.userRepo.save(user);
+    return this.toProfile(saved);
+  }
+
+  async updateAvatar(id: string, avatarPath: string): Promise<User & { avatarUrl: string | null }> {
+    await this.userRepo.update(id, { avatarPath });
+    const user = await this.userRepo.findOne({ where: { id } });
+    return this.toProfile(user!);
   }
 
   async updatePasswordHash(id: string, hash: string): Promise<void> {
