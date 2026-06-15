@@ -29,6 +29,21 @@ export class User {
   @Column()
   displayName: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  nickname: string | null;
+
+  @Column({ type: 'varchar', length: 160, nullable: true })
+  bio: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  department: string | null;
+
+  @Column({ type: 'uuid', nullable: true })
+  favouriteTeamId: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatarPath: string | null;
+
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
 
