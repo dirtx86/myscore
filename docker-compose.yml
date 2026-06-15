@@ -36,6 +36,9 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-}
       FOOTBALL_DATA_API_KEY: ${FOOTBALL_DATA_API_KEY:-}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+    volumes:
+      - uploads:/app/uploads
     ports:
       - "3001:3001"
 
@@ -54,3 +57,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:
