@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Icon } from '../ui/Icon';
 import { Avatar } from '../ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
+import { displayLabel } from '../../utils/displayLabel';
 
 interface NavItem {
   to: string;
@@ -13,11 +14,12 @@ interface NavItem {
 interface SidebarProps {
   navItems: NavItem[];
   onLogout: () => void;
+  onChangePassword?: () => void;
 }
 
-export function Sidebar({ navItems, onLogout }: SidebarProps) {
+export function Sidebar({ navItems, onLogout, onChangePassword }: SidebarProps) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   return (
     <aside style={{
@@ -81,26 +83,43 @@ export function Sidebar({ navItems, onLogout }: SidebarProps) {
       {user && (
         <div style={{ padding: '12px 16px', borderTop: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Avatar displayName={user.displayName} size={32} />
+            <Avatar displayName={user.displayName} avatarUrl={profile?.avatarUrl ?? undefined} size={32} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)' }}>
-                {user.displayName}
+                {profile ? displayLabel(profile) : user.displayName}
               </div>
               <div style={{ fontSize: 10, color: 'var(--text-mute)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {user.role}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onLogout}
-              aria-label="Log out"
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-mute)', padding: 6, borderRadius: 'var(--r-xs)',
-              }}
-            >
-              <Icon name="logout" size={16} />
-            </button>
+            <div style={{ display: 'flex', gap: 2 }}>
+              {onChangePassword && (
+                <button
+                  type="button"
+                  onClick={onChangePassword}
+                  aria-label="Change password"
+                  title="Change password"
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--text-mute)', padding: 6, borderRadius: 'var(--r-xs)',
+                  }}
+                >
+                  <Icon name="lock" size={16} />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onLogout}
+                aria-label="Log out"
+                title="Log out"
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: 'var(--text-mute)', padding: 6, borderRadius: 'var(--r-xs)',
+                }}
+              >
+                <Icon name="logout" size={16} />
+              </button>
+            </div>
           </div>
         </div>
       )}
