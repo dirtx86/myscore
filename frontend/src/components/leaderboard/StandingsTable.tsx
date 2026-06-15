@@ -1,6 +1,8 @@
 import type { LeaderboardEntry } from '../../types';
 import { Avatar } from '../ui/Avatar';
 import { RankMedal } from './RankMedal';
+import { UserStatCard } from './UserStatCard';
+import { displayLabel } from '../../utils/displayLabel';
 
 export interface StandingsTableProps {
   entries: LeaderboardEntry[];
@@ -44,10 +46,16 @@ export function StandingsTable({ entries, currentUserId }: StandingsTableProps) 
               </td>
               <td style={{ padding: '10px 12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <Avatar displayName={entry.user.displayName} size={28} />
-                  <span style={{ fontWeight: isMe ? 800 : 500, color: isMe ? 'var(--accent)' : 'var(--text)' }}>
-                    {entry.user.displayName}
-                  </span>
+                  <Avatar
+                    displayName={entry.user.displayName}
+                    avatarUrl={entry.user.avatarUrl ?? undefined}
+                    size={28}
+                  />
+                  <UserStatCard entry={entry}>
+                    <span style={{ fontWeight: isMe ? 800 : 500, color: isMe ? 'var(--accent-text)' : 'var(--text)' }}>
+                      {displayLabel(entry.user)}
+                    </span>
+                  </UserStatCard>
                 </div>
               </td>
               <td style={{ padding: '10px 12px', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{entry.totalPts}</td>
