@@ -24,11 +24,28 @@ function getInitials(displayName: string): string {
 
 export interface AvatarProps {
   displayName: string;
+  avatarUrl?: string | null;
   size?: number;
   className?: string;
 }
 
-export function Avatar({ displayName, size = 36, className }: AvatarProps) {
+export function Avatar({ displayName, avatarUrl, size = 36, className }: AvatarProps) {
+  if (avatarUrl) {
+    return (
+      <img
+        className={className}
+        src={avatarUrl}
+        alt={displayName}
+        width={size}
+        height={size}
+        style={{
+          width: size, height: size, borderRadius: '50%',
+          objectFit: 'cover', flexShrink: 0,
+        }}
+      />
+    );
+  }
+
   const bg = AVATAR_COLORS[hashString(displayName) % AVATAR_COLORS.length];
   return (
     <div
