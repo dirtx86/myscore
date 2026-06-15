@@ -96,6 +96,12 @@ export class UsersService {
     await this.userRepo.update(id, { passwordHash: hash, mustChangePassword: false });
   }
 
+  async setRole(id: string, role: UserRole): Promise<void> {
+    const user = await this.findById(id);
+    if (!user) throw new NotFoundException('User not found');
+    await this.userRepo.update(id, { role });
+  }
+
   async setActive(id: string, isActive: boolean): Promise<void> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException('User not found');

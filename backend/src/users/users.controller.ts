@@ -65,6 +65,13 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Patch(':id/role')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  setRole(@Param('id') id: string, @Body('role') role: UserRole) {
+    return this.usersService.setRole(id, role);
+  }
+
   @Post(':id/disable')
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.OK)
