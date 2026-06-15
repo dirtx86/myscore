@@ -88,7 +88,8 @@ export class UsersService {
   async updateAvatar(id: string, avatarPath: string): Promise<User & { avatarUrl: string | null }> {
     await this.userRepo.update(id, { avatarPath });
     const user = await this.userRepo.findOne({ where: { id } });
-    return this.toProfile(user!);
+    if (!user) throw new NotFoundException('User not found');
+    return this.toProfile(user);
   }
 
   async updatePasswordHash(id: string, hash: string): Promise<void> {
