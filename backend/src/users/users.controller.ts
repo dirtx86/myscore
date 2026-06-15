@@ -1,11 +1,20 @@
 import {
-  Controller, Get, Post, Param, HttpCode, HttpStatus,
+  Controller, Get, Post, Patch, Param, Body, HttpCode, HttpStatus,
+  UseInterceptors, UploadedFile, BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { UsersService } from './users.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from './entities/user.entity';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const multer = require('multer');
+
+const UPLOADS_DIR = join(process.cwd(), 'uploads', 'avatars');
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -16,6 +25,36 @@ export class UsersController {
   @Get('me')
   getMe(@CurrentUser() user: any) {
     return this.usersService.findById(user.id);
+  }
+
+  @Patch('me/profile')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update own profile fields' })
+  updateProfile(@CurrentUser() user: any, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updateProfile(user.id, dto);
+  }
+
+  @Post('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Upload profile avatar' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar', {
+    storage: multer.diskStorage({
+      destination: UPLOADS_DIR,
+      filename: (req: any, _file: any, cb: any) => cb(null, `${req.user.id}.jpg`),
+    }),
+    fileFilter: (_req: any, file: any, cb: any) => {
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+        return cb(new BadRequestException('Only JPEG, PNG, and WebP images are allowed'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 2 * 1024 * 1024 },
+  }))
+  async uploadAvatar(@CurrentUser() user: any, @UploadedFile() file: any) {
+    if (!file) throw new BadRequestException('No file uploaded');
+    const avatarPath = `avatars/${user.id}.jpg`;
+    return this.usersService.updateAvatar(user.id, avatarPath);
   }
 
   @Get()

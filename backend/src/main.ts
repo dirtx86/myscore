@@ -1,4 +1,7 @@
 import 'reflect-metadata';
+import { join } from 'path';
+import * as fs from 'fs';
+import * as express from 'express';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -7,6 +10,16 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Normalize double-slash paths (HAProxy stripping /api prefix can produce //route)
+  app.use((req: any, _res: any, next: any) => {
+    req.url = req.url.replace(/\/\/+/g, '/');
+    next();
+  });
+
+  // Ensure upload dirs exist and serve static files
+  fs.mkdirSync(join(process.cwd(), 'uploads', 'avatars'), { recursive: true });
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());
