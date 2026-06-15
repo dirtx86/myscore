@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { MobileTabBar } from './MobileTabBar';
+import { ChangePasswordModal } from '../auth/ChangePasswordModal';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
@@ -11,6 +12,8 @@ const NAV_ITEMS = [
   { to: '/predictions', label: 'My Predictions', icon: 'predictions' },
   { to: '/leaderboard', label: 'Leaderboard', icon: 'leaderboard' },
   { to: '/stats', label: 'Statistics', icon: 'stats' },
+  { to: '/profile', label: 'My Profile', icon: 'user' },
+  { to: '/help', label: 'How it works', icon: 'info' },
 ];
 
 const ADMIN_NAV = { to: '/admin', label: 'Admin', icon: 'admin' };
@@ -21,6 +24,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/predictions': 'My Predictions',
   '/leaderboard': 'Leaderboard',
   '/stats': 'Statistics',
+  '/profile': 'My Profile',
+  '/help': 'How it works',
   '/admin': 'Admin',
 };
 
@@ -34,6 +39,7 @@ function getThemePreference(): 'dark' | 'light' {
 
 export default function AppShell() {
   const [theme, setTheme] = useState<'dark' | 'light'>(getThemePreference);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -55,8 +61,9 @@ export default function AppShell() {
       `}</style>
 
       <div className="sidebar-desktop">
-        <Sidebar navItems={navItems} onLogout={logout} />
+        <Sidebar navItems={navItems} onLogout={logout} onChangePassword={() => setShowChangePassword(true)} />
       </div>
+      {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Topbar title={pageTitle} theme={theme} onToggleTheme={toggleTheme} />

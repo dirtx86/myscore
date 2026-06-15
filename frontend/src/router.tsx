@@ -13,6 +13,8 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import StatsPage from './pages/StatsPage';
 import AdminPage from './pages/AdminPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import HelpPage from './pages/HelpPage';
+import ProfilePage from './pages/ProfilePage';
 
 function RootLayout() {
   return (
@@ -66,6 +68,8 @@ export const router = createBrowserRouter([
               { path: '/predictions', element: <PredictionsPage /> },
               { path: '/leaderboard', element: <LeaderboardPage /> },
               { path: '/stats', element: <StatsPage /> },
+              { path: '/profile', element: <ProfilePage /> },
+              { path: '/help', element: <HelpPage /> },
             ],
           },
         ],
