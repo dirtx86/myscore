@@ -25,6 +25,11 @@ interface FdoMatch {
   score: { fullTime: FdoScore };
 }
 
+// TLA codes that football-data.org uses differently from our fifaCode values
+const TLA_ALIASES: Record<string, string> = {
+  URY: 'URU', // Uruguay
+};
+
 const STAGE_MAP: Record<string, MatchStage> = {
   GROUP_STAGE: MatchStage.GROUP,
   ROUND_OF_32: MatchStage.R32,
@@ -88,7 +93,9 @@ export class MatchSyncService implements OnModuleInit {
     const data = await this.fetch<{ matches: FdoMatch[] }>('/competitions/WC/matches');
     const fdoMatches = data.matches ?? [];
 
-    const teams = await this.teamRepo.find({ where: { tournamentId } });
+    // Load all teams (not filtered by tournamentId) so TLA lookup works
+    // regardless of which tournament UUID the admin passes in the request
+    const teams = await this.teamRepo.find();
     const teamByTla = new Map(teams.map((t) => [t.fifaCode.toUpperCase(), t]));
 
     let created = 0;
@@ -100,9 +107,12 @@ export class MatchSyncService implements OnModuleInit {
       const stage = STAGE_MAP[fdoMatch.stage];
       if (!stage) { skipped++; continue; }
 
-      const homeTla = fdoMatch.homeTeam.tla?.toUpperCase();
-      const awayTla = fdoMatch.awayTeam.tla?.toUpperCase();
-      if (!homeTla || !awayTla) { skipped++; continue; }
+      const rawHome = fdoMatch.homeTeam.tla?.toUpperCase();
+      const rawAway = fdoMatch.awayTeam.tla?.toUpperCase();
+      if (!rawHome || !rawAway) { skipped++; continue; }
+
+      const homeTla = TLA_ALIASES[rawHome] ?? rawHome;
+      const awayTla = TLA_ALIASES[rawAway] ?? rawAway;
 
       const homeTeam = teamByTla.get(homeTla);
       const awayTeam = teamByTla.get(awayTla);
