@@ -28,6 +28,7 @@ interface FdoMatch {
 // TLA codes that football-data.org uses differently from our fifaCode values
 const TLA_ALIASES: Record<string, string> = {
   URY: 'URU', // Uruguay
+  CUR: 'CUW', // Curaçao
 };
 
 const STAGE_MAP: Record<string, MatchStage> = {
