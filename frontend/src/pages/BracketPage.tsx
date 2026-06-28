@@ -48,7 +48,7 @@ function MobileRound({ label, matches }: { label: string; matches: (Match | null
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-mute)', marginTop: 4 }}>
                   {m.status === 'live' ? '🔴 LIVE' : m.status === 'completed' ? 'FT' :
-                    new Date(m.kickoffAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    new Date(m.kickoffAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </div>
               </>
             ) : (
@@ -62,7 +62,7 @@ function MobileRound({ label, matches }: { label: string; matches: (Match | null
 }
 
 export default function BracketPage() {
-  const { data: tournament } = useQuery({
+  const { data: tournament, isLoading: tournamentLoading, isError: tournamentError } = useQuery({
     queryKey: ['tournament', 'active'],
     queryFn: matchesApi.getActiveTournament,
   });
@@ -92,10 +92,18 @@ export default function BracketPage() {
   // Total bracket height = 8 R32 slots per half × SLOT_HEIGHT
   const bracketHeight = 8 * SLOT_HEIGHT;
 
-  if (isLoading) {
+  if (tournamentLoading || isLoading) {
     return (
       <div style={{ color: 'var(--text-mute)', padding: 40, textAlign: 'center' }}>
         Loading bracket…
+      </div>
+    );
+  }
+
+  if (tournamentError || !tournament) {
+    return (
+      <div style={{ color: 'var(--text-mute)', padding: 40, textAlign: 'center' }}>
+        No active tournament found.
       </div>
     );
   }

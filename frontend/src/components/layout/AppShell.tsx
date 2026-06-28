@@ -10,9 +10,9 @@ const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: 'dashboard' },
   { to: '/matches', label: 'Matches', icon: 'matches' },
   { to: '/predictions', label: 'My Predictions', icon: 'predictions' },
-  { to: '/bracket', label: 'Bracket', icon: 'bracket' },
   { to: '/leaderboard', label: 'Leaderboard', icon: 'leaderboard' },
   { to: '/profile', label: 'My Profile', icon: 'user' },
+  { to: '/bracket', label: 'Bracket', icon: 'bracket' },
   { to: '/help', label: 'How it works', icon: 'info' },
 ];
 

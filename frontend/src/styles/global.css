@@ -311,6 +311,12 @@ body {
   left: -24px; bottom: 50%; height: 50%;
 }
 
+/* SF column has only one slot — suppress the dangling half-vertical */
+.bk-slot--left:only-child::before,
+.bk-slot--right:only-child::before {
+  display: none;
+}
+
 /* Center and SF slots have no connectors — handled by explicit gap */
 .bk-slot--center::before,
 .bk-slot--center::after { display: none; }
