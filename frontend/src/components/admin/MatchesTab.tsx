@@ -26,8 +26,19 @@ export function MatchesTab({ tournamentId, teams }: MatchesTabProps) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [resultMatchId, setResultMatchId] = useState<string | null>(null);
+  const [streamMatchId, setStreamMatchId] = useState<string | null>(null);
+  const [streamUrlDraft, setStreamUrlDraft] = useState<Record<string, string>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState<CreateForm>(EMPTY_FORM);
+
+  const importMutation = useMutation({
+    mutationFn: () => matchesApi.importMatches(tournamentId),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['admin-matches'] });
+      toast(`Imported ${data.created} matches (${data.skipped} skipped${data.errors.length ? `, ${data.errors.length} errors` : ''})`, data.errors.length ? 'error' : 'success');
+    },
+    onError: () => toast('Import failed — check API key', 'error'),
+  });
 
   const { data: matches = [], isLoading } = useQuery<Match[]>({
     queryKey: ['admin-matches', tournamentId],
@@ -65,11 +76,28 @@ export function MatchesTab({ tournamentId, teams }: MatchesTabProps) {
     onError: () => toast('Failed to create match', 'error'),
   });
 
+  const streamMutation = useMutation({
+    mutationFn: ({ id, url, published }: { id: string; url: string | null; published: boolean }) =>
+      matchesApi.adminUpdateStream(id, url, published),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-matches'] });
+      toast('Stream updated', 'success');
+    },
+    onError: () => toast('Failed to update stream', 'error'),
+  });
+
   const selStyle = { background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '8px 10px' };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <Button
+          variant="ghost"
+          onClick={() => { if (window.confirm('Import all WC2026 matches from football-data.org? This will skip any already imported.')) importMutation.mutate(); }}
+          disabled={importMutation.isPending}
+        >
+          {importMutation.isPending ? 'Importing…' : '⬇ Import from API'}
+        </Button>
         <Button variant="primary" onClick={() => setShowCreate(v => !v)}>
           {showCreate ? 'Cancel' : '+ New Match'}
         </Button>
@@ -126,7 +154,7 @@ export function MatchesTab({ tournamentId, teams }: MatchesTabProps) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--text-dim)' }}>
-                {['Date/Time','Home','Away','Stage','Status','Result','Actions'].map(h => (
+                {['Date/Time','Home','Away','Stage','Status','Result','Stream','Actions'].map(h => (
                   <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500 }}>{h}</th>
                 ))}
               </tr>
@@ -146,8 +174,40 @@ export function MatchesTab({ tournamentId, teams }: MatchesTabProps) {
                       {match.homeScore != null && match.awayScore != null ? `${match.homeScore}–${match.awayScore}` : '—'}
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        {match.status !== 'completed' && (
+                      <button
+                        onClick={() => {
+                          setStreamMatchId(streamMatchId === match.id ? null : match.id);
+                          setStreamUrlDraft(d => ({ ...d, [match.id]: match.streamUrl ?? '' }));
+                        }}
+                        style={{
+                          padding: '4px 10px', fontSize: 12, fontWeight: 600,
+                          borderRadius: 'var(--r-sm)', cursor: 'pointer', border: 'none',
+                          background: match.streamPublished
+                            ? 'rgba(25,224,138,0.15)'
+                            : 'rgba(255,255,255,0.07)',
+                          color: match.streamPublished ? 'var(--live)' : 'var(--text-mute)',
+                        }}
+                      >
+                        {match.streamPublished ? '📡 Live' : '📡 Stream'}
+                      </button>
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {(match.status === 'scheduled' || match.status === 'locked') && (
+                          <button
+                            onClick={() => statusMutation.mutate({ id: match.id, status: match.status === 'scheduled' ? 'locked' : 'scheduled' })}
+                            disabled={statusMutation.isPending}
+                            style={{
+                              padding: '4px 10px', fontSize: 12, fontWeight: 600,
+                              borderRadius: 'var(--r-sm)', cursor: 'pointer', border: 'none',
+                              background: match.status === 'scheduled' ? 'rgba(255,180,0,0.15)' : 'rgba(74,168,255,0.15)',
+                              color: match.status === 'scheduled' ? '#f59e0b' : 'var(--info)',
+                            }}
+                          >
+                            {match.status === 'scheduled' ? '🔒 Lock Predictions' : '🔓 Open Predictions'}
+                          </button>
+                        )}
+                        {match.status !== 'completed' && match.status !== 'scheduled' && match.status !== 'locked' && (
                           <select value={match.status} onChange={e => statusMutation.mutate({ id: match.id, status: e.target.value as MatchStatus })} style={{ background: 'var(--bg-2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 'var(--r-sm)', padding: '4px 8px', fontSize: 13 }}>
                             {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
@@ -160,8 +220,55 @@ export function MatchesTab({ tournamentId, teams }: MatchesTabProps) {
                   </tr>
                   {resultMatchId === match.id && (
                     <tr key={`r-${match.id}`}>
-                      <td colSpan={7} style={{ padding: '12px 20px', background: 'var(--bg-1)' }}>
+                      <td colSpan={8} style={{ padding: '12px 20px', background: 'var(--bg-1)' }}>
                         <ResultForm match={match} onSave={(hs, as) => resultMutation.mutate({ id: match.id, homeScore: hs, awayScore: as })} onCancel={() => setResultMatchId(null)} />
+                      </td>
+                    </tr>
+                  )}
+                  {streamMatchId === match.id && (
+                    <tr key={`s-${match.id}`}>
+                      <td colSpan={8} style={{ padding: '12px 20px', background: 'var(--bg-1)' }}>
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                          <div style={{ flex: 1, minWidth: 260, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <label style={{ fontSize: 12, color: 'var(--text-mute)' }}>M3U / HLS Stream URL</label>
+                            <Input
+                              type="url"
+                              placeholder="https://example.com/stream.m3u8"
+                              value={streamUrlDraft[match.id] ?? match.streamUrl ?? ''}
+                              onChange={e => setStreamUrlDraft(d => ({ ...d, [match.id]: e.target.value }))}
+                            />
+                          </div>
+                          <Button
+                            variant="primary"
+                            disabled={streamMutation.isPending}
+                            onClick={() => streamMutation.mutate({
+                              id: match.id,
+                              url: streamUrlDraft[match.id] || null,
+                              published: true,
+                            })}
+                          >
+                            {streamMutation.isPending ? '…' : 'Publish'}
+                          </Button>
+                          {match.streamPublished && (
+                            <Button
+                              variant="ghost"
+                              disabled={streamMutation.isPending}
+                              onClick={() => streamMutation.mutate({
+                                id: match.id,
+                                url: match.streamUrl ?? null,
+                                published: false,
+                              })}
+                            >
+                              Unpublish
+                            </Button>
+                          )}
+                          <Button variant="ghost" onClick={() => setStreamMatchId(null)}>Cancel</Button>
+                        </div>
+                        {match.streamPublished && match.streamUrl && (
+                          <p style={{ fontSize: 11, color: 'var(--live)', marginTop: 8 }}>
+                            ✓ Stream is published: {match.streamUrl}
+                          </p>
+                        )}
                       </td>
                     </tr>
                   )}
