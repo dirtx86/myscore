@@ -82,8 +82,9 @@ export class PredictionsService {
     if (pred) {
       pred.homeScore = homeScore;
       pred.awayScore = awayScore;
+      pred.byAdmin = true;
     } else {
-      pred = this.predRepo.create({ userId, matchId, homeScore, awayScore });
+      pred = this.predRepo.create({ userId, matchId, homeScore, awayScore, byAdmin: true });
     }
 
     if (match.status === MatchStatus.COMPLETED && match.homeScore != null && match.awayScore != null) {
