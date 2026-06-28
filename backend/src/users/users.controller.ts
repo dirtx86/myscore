@@ -7,6 +7,8 @@ import { join } from 'path';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiConsumes } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { AdminCreateUserDto } from './dto/admin-create-user.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserRole } from './entities/user.entity';
@@ -92,5 +94,21 @@ export class UsersController {
   @ApiOperation({ summary: 'Admin force-reset user password, returns new password' })
   resetPassword(@Param('id') id: string) {
     return this.usersService.forceResetPassword(id);
+  }
+
+  @Post('admin/create')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Admin create a new user account' })
+  adminCreate(@Body() dto: AdminCreateUserDto) {
+    return this.usersService.adminCreate(dto.email, dto.displayName);
+  }
+
+  @Patch('admin/:id')
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Admin update user profile fields' })
+  adminUpdate(@Param('id') id: string, @Body() dto: AdminUpdateUserDto) {
+    return this.usersService.adminUpdateUser(id, dto);
   }
 }

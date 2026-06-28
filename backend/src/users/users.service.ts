@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -115,5 +116,38 @@ export class UsersService {
     const hash = await bcrypt.hash(newPassword, 12);
     await this.userRepo.update(id, { passwordHash: hash, mustChangePassword: true });
     return { password: newPassword };
+  }
+
+  async adminCreate(
+    email: string,
+    displayName: string,
+  ): Promise<{ id: string; email: string; displayName: string; temporaryPassword: string }> {
+    const existing = await this.findByEmail(email);
+    if (existing) throw new ConflictException('Email already in use');
+    const temporaryPassword = randomBytes(9).toString('base64').slice(0, 12) + 'A1!';
+    const passwordHash = await bcrypt.hash(temporaryPassword, 12);
+    const user = await this.userRepo.save(
+      this.userRepo.create({
+        email,
+        displayName,
+        passwordHash,
+        mustChangePassword: true,
+        role: this.roleForEmail(email),
+      }),
+    );
+    return { id: user.id, email: user.email, displayName: user.displayName, temporaryPassword };
+  }
+
+  async adminUpdateUser(
+    id: string,
+    dto: { displayName?: string; email?: string; department?: string },
+  ): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+    if (dto.email && dto.email !== user.email) {
+      const existing = await this.findByEmail(dto.email);
+      if (existing) throw new ConflictException('Email already in use');
+    }
+    await this.userRepo.update(id, dto);
   }
 }
