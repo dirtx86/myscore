@@ -110,7 +110,6 @@ export default function BracketPage() {
           matches={fillSlots(byStage(stage), halfCount * 2)}
         />
       ))}
-      <MobileRound label="Semi-finals" matches={fillSlots(byStage('sf'), 2)} />
       <MobileRound label="3rd Place" matches={thirdMatches} />
       <MobileRound label="Final" matches={finalMatches} />
     </div>
