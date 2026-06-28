@@ -19,7 +19,7 @@ export const usersApi = {
   },
 
   disableUser: async (id: string): Promise<void> => {
-    await apiClient.patch(`/users/${id}/disable`);
+    await apiClient.post(`/users/${id}/disable`);
   },
 
   resetUserPassword: async (id: string): Promise<{ password: string }> => {

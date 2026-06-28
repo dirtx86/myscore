@@ -152,7 +152,7 @@ export class PredictionsService {
       actualAway: match.awayScore,
       winners: (predsByMatch.get(match.id) ?? []).map((p) => ({
         userId: p.userId,
-        displayName: p.user.displayName,
+        displayName: p.user?.displayName ?? '(deleted user)',
         pointsEarned: p.pointsEarned,
       })),
     }));

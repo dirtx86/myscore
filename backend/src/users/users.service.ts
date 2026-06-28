@@ -28,7 +28,8 @@ export class UsersService {
     const avatarUrl = user.avatarPath
       ? `/uploads/${user.avatarPath}`
       : null;
-    return { ...user, avatarUrl };
+    const { passwordHash: _, ...safe } = user as any;
+    return { ...safe, avatarUrl } as User & { avatarUrl: string | null };
   }
 
   async findByEmail(email: string): Promise<User | null> {
