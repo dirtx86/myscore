@@ -28,4 +28,23 @@ export const usersApi = {
     );
     return res.data;
   },
+
+  enableUser: async (id: string): Promise<void> => {
+    await apiClient.post(`/users/${id}/enable`);
+  },
+
+  adminCreateUser: async (data: {
+    email: string;
+    displayName: string;
+  }): Promise<{ id: string; email: string; displayName: string; temporaryPassword: string }> => {
+    const res = await apiClient.post('/users/admin/create', data);
+    return res.data;
+  },
+
+  adminUpdateUser: async (
+    id: string,
+    data: { displayName?: string; email?: string; department?: string },
+  ): Promise<void> => {
+    await apiClient.patch(`/users/admin/${id}`, data);
+  },
 };
