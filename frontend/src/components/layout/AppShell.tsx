@@ -11,7 +11,6 @@ const NAV_ITEMS = [
   { to: '/matches', label: 'Matches', icon: 'matches' },
   { to: '/predictions', label: 'My Predictions', icon: 'predictions' },
   { to: '/leaderboard', label: 'Leaderboard', icon: 'leaderboard' },
-  { to: '/stats', label: 'Statistics', icon: 'stats' },
   { to: '/profile', label: 'My Profile', icon: 'user' },
   { to: '/help', label: 'How it works', icon: 'info' },
 ];
