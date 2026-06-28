@@ -132,7 +132,8 @@ export class UsersService {
         displayName,
         passwordHash,
         mustChangePassword: true,
-        role: this.roleForEmail(email),
+        role: UserRole.USER,
+        isActive: true,
       }),
     );
     return { id: user.id, email: user.email, displayName: user.displayName, temporaryPassword };
@@ -148,6 +149,10 @@ export class UsersService {
       const existing = await this.findByEmail(dto.email);
       if (existing) throw new ConflictException('Email already in use');
     }
-    await this.userRepo.update(id, dto);
+    const patch: Record<string, unknown> = {};
+    if (dto.displayName !== undefined) patch.displayName = dto.displayName;
+    if (dto.email       !== undefined) patch.email       = dto.email;
+    if (dto.department  !== undefined) patch.department  = dto.department;
+    await this.userRepo.update(id, patch);
   }
 }
