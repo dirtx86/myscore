@@ -98,7 +98,7 @@ export function ExactScoresTab({ tournamentId }: ExactScoresTabProps) {
                           background: '#22863a', color: '#fff',
                           fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
                         }}>
-                          {w.pointsEarned ?? 4} pts
+                          {w.pointsEarned != null ? `${w.pointsEarned} pts` : '—'}
                         </span>
                       </td>
                     </tr>
