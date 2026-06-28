@@ -34,7 +34,9 @@ const TLA_ALIASES: Record<string, string> = {
 const STAGE_MAP: Record<string, MatchStage> = {
   GROUP_STAGE: MatchStage.GROUP,
   ROUND_OF_32: MatchStage.R32,
+  LAST_32: MatchStage.R32,
   ROUND_OF_16: MatchStage.R16,
+  LAST_16: MatchStage.R16,
   QUARTER_FINALS: MatchStage.QF,
   SEMI_FINALS: MatchStage.SF,
   THIRD_PLACE: MatchStage.THIRD_PLACE,
