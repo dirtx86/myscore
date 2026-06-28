@@ -31,6 +31,8 @@
   --text: #eef3f9;
   --text-dim: #97a4b5;
   --text-mute: #5d6b7c;
+  --accent-text: #ffd23f;
+  --header-bg: rgba(14, 19, 27, 0.85);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
     0 18px 40px -20px rgba(0, 0, 0, 0.8);
   --shadow-sm: 0 8px 24px -16px rgba(0, 0, 0, 0.8);
@@ -53,6 +55,8 @@
   --text: #0d1622;
   --text-dim: #54647a;
   --text-mute: #8a99ac;
+  --accent-text: #9a6a00;
+  --header-bg: rgba(255, 255, 255, 0.9);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset,
     0 18px 40px -24px rgba(20, 30, 50, 0.35);
   --shadow-sm: 0 10px 24px -18px rgba(20, 30, 50, 0.3);
@@ -265,3 +269,64 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Knockout bracket connector lines ──────────────────────────────────── */
+
+/* Shared: horizontal stub extending from the card edge into the gap */
+.bk-slot--left::after,
+.bk-slot--right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;          /* must match ROUND_GAP in BracketPage */
+  border-top: 1px solid var(--line-2);
+  pointer-events: none;
+}
+.bk-slot--left::after  { right: -24px; }
+.bk-slot--right::after { left: -24px; }
+
+/* Vertical lines that bracket pairs (odd = top-of-pair, even = bottom-of-pair) */
+.bk-slot--left::before,
+.bk-slot--right::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  border-right: 1px solid var(--line-2);
+  pointer-events: none;
+}
+/* Top-of-pair: right border from centre downward */
+.bk-slot--left:nth-child(odd)::before {
+  right: -24px; top: 50%; height: 50%;
+}
+/* Bottom-of-pair: right border from centre upward */
+.bk-slot--left:nth-child(even)::before {
+  right: -24px; bottom: 50%; height: 50%;
+}
+/* Mirror for right side */
+.bk-slot--right:nth-child(odd)::before {
+  left: -24px; top: 50%; height: 50%;
+}
+.bk-slot--right:nth-child(even)::before {
+  left: -24px; bottom: 50%; height: 50%;
+}
+
+/* Center and SF slots have no connectors — handled by explicit gap */
+.bk-slot--center::before,
+.bk-slot--center::after { display: none; }
+
+/* Slots must be position: relative for pseudo-elements to work */
+.bk-slot--left,
+.bk-slot--right,
+.bk-slot--center {
+  position: relative;
+}
+
+/* ── Bracket page responsive visibility ────────────────────────────────── */
+.bracket-desktop { display: flex; }
+.bracket-mobile  { display: none; }
+
+@media (max-width: 880px) {
+  .bracket-desktop { display: none; }
+  .bracket-mobile  { display: block; }
+}

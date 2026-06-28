@@ -9,6 +9,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import MatchesPage from './pages/MatchesPage';
 import PredictionsPage from './pages/PredictionsPage';
+import BracketPage from './pages/BracketPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import StatsPage from './pages/StatsPage';
 import AdminPage from './pages/AdminPage';
@@ -66,6 +67,7 @@ export const router = createBrowserRouter([
               { path: '/', element: <DashboardPage /> },
               { path: '/matches', element: <MatchesPage /> },
               { path: '/predictions', element: <PredictionsPage /> },
+              { path: '/bracket', element: <BracketPage /> },
               { path: '/leaderboard', element: <LeaderboardPage /> },
               { path: '/stats', element: <StatsPage /> },
               { path: '/profile', element: <ProfilePage /> },
