@@ -85,6 +85,25 @@ export interface Prediction {
   match?: Match;
 }
 
+export interface ExactWinner {
+  userId: string;
+  displayName: string;
+  pointsEarned: number | null;
+}
+
+export interface ExactWinnersMatch {
+  matchId: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeTeamName: string;
+  awayTeamName: string;
+  kickoffAt: string;
+  stage: MatchStage;
+  actualHome: number;
+  actualAway: number;
+  winners: ExactWinner[];
+}
+
 export interface LeaderboardEntry {
   userId: string;
   tournamentId: string;

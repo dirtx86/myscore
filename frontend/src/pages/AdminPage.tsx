@@ -7,14 +7,18 @@ import { MatchesTab } from '../components/admin/MatchesTab';
 import { TeamsTab } from '../components/admin/TeamsTab';
 import { UsersTab } from '../components/admin/UsersTab';
 import { ScoringTab } from '../components/admin/ScoringTab';
+import { BackfillTab } from '../components/admin/BackfillTab';
+import { ExactScoresTab } from '../components/admin/ExactScoresTab';
 import type { Tournament, Team } from '../types';
 
-type TabId = 'matches' | 'teams' | 'users' | 'scoring';
+type TabId = 'matches' | 'teams' | 'users' | 'scoring' | 'backfill' | 'exact-scores';
 const TABS: { id: TabId; label: string }[] = [
   { id: 'matches', label: 'Matches' },
   { id: 'teams', label: 'Teams' },
   { id: 'users', label: 'Users' },
   { id: 'scoring', label: 'Scoring' },
+  { id: 'backfill', label: 'Predictions' },
+  { id: 'exact-scores', label: 'Exact Scores' },
 ];
 
 export default function AdminPage() {
@@ -60,6 +64,8 @@ export default function AdminPage() {
           {activeTab === 'teams' && <TeamsTab tournamentId={tournament.id} />}
           {activeTab === 'users' && <UsersTab />}
           {activeTab === 'scoring' && <ScoringTab tournamentId={tournament.id} tournament={tournament} />}
+          {activeTab === 'backfill' && <BackfillTab tournamentId={tournament.id} />}
+          {activeTab === 'exact-scores' && <ExactScoresTab tournamentId={tournament.id} />}
         </>
       ) : (
         <p style={{ color: 'var(--text-dim)' }}>Loading tournament…</p>
