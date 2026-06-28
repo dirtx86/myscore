@@ -1,4 +1,5 @@
 import type { Match, Prediction, ScoreRules } from '../../types';
+import { useState } from 'react';
 import { StatusPill } from '../ui/StatusPill';
 import { PtsTag } from '../ui/PtsTag';
 import { Flag } from '../ui/Flag';
@@ -6,6 +7,7 @@ import { Card } from '../ui/Card';
 import { PredictionForm } from './PredictionForm';
 import { useCountdown } from '../../hooks/useCountdown';
 import { Icon } from '../ui/Icon';
+import { StreamPlayer } from './StreamPlayer';
 
 export interface MatchCardProps {
   match: Match;
@@ -25,6 +27,8 @@ export function MatchCard({ match, prediction, rules, onPredictionSave }: MatchC
   const stageLabel = STAGE_LABELS[match.stage] || match.stage;
   const countdown = useCountdown(match.kickoffAt);
   const showCountdown = match.status === 'scheduled' && !countdown.started;
+  const [showStream, setShowStream] = useState(false);
+  const hasLiveStream = match.status === 'live' && match.streamPublished === true && !!match.streamUrl;
 
   return (
     <Card style={{ marginBottom: 12 }}>
@@ -45,7 +49,26 @@ export function MatchCard({ match, prediction, rules, onPredictionSave }: MatchC
             </div>
           )}
         </div>
-        <StatusPill status={match.status} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <StatusPill status={match.status} />
+          {hasLiveStream && (
+            <button
+              onClick={() => setShowStream(true)}
+              style={{
+                padding: '4px 12px',
+                fontSize: 12, fontWeight: 700,
+                background: 'rgba(25,224,138,0.15)',
+                color: 'var(--live)',
+                border: '1px solid var(--live)',
+                borderRadius: 20,
+                cursor: 'pointer',
+                letterSpacing: '.02em',
+              }}
+            >
+              🔴 Watch Live
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Teams row */}
@@ -114,6 +137,9 @@ export function MatchCard({ match, prediction, rules, onPredictionSave }: MatchC
           isLocked={isLocked}
         />
       ) : null}
+      {showStream && match.streamUrl && (
+        <StreamPlayer url={match.streamUrl} onClose={() => setShowStream(false)} />
+      )}
     </Card>
   );
 }
