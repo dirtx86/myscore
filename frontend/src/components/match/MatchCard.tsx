@@ -4,6 +4,8 @@ import { PtsTag } from '../ui/PtsTag';
 import { Flag } from '../ui/Flag';
 import { Card } from '../ui/Card';
 import { PredictionForm } from './PredictionForm';
+import { useCountdown } from '../../hooks/useCountdown';
+import { Icon } from '../ui/Icon';
 
 export interface MatchCardProps {
   match: Match;
@@ -21,15 +23,27 @@ export function MatchCard({ match, prediction, rules, onPredictionSave }: MatchC
   const isLocked = match.status === 'locked' || match.status === 'completed' || match.status === 'live';
   const kickoff = new Date(match.kickoffAt);
   const stageLabel = STAGE_LABELS[match.stage] || match.stage;
+  const countdown = useCountdown(match.kickoffAt);
+  const showCountdown = match.status === 'scheduled' && !countdown.started;
 
   return (
     <Card style={{ marginBottom: 12 }}>
       {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: 'var(--text-mute)' }}>
-          {kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          {match.venue && <span> · {match.venue}</span>}
-          {stageLabel && <span style={{ marginLeft: 8, color: 'var(--accent)', fontWeight: 600 }}>{stageLabel}</span>}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-mute)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Icon name="clock" size={12} style={{ flexShrink: 0 }} />
+            {kickoff.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+            {' · '}
+            {kickoff.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {stageLabel && <span style={{ color: 'var(--accent-text)', fontWeight: 600, marginLeft: 4 }}>{stageLabel}</span>}
+          </div>
+          {match.venue && (
+            <div style={{ fontSize: 11, color: 'var(--text-mute)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <Icon name="location" size={11} style={{ flexShrink: 0 }} />
+              {match.venue}
+            </div>
+          )}
         </div>
         <StatusPill status={match.status} />
       </div>
@@ -61,14 +75,35 @@ export function MatchCard({ match, prediction, rules, onPredictionSave }: MatchC
         </div>
       </div>
 
+      {/* Countdown */}
+      {showCountdown && (
+        <div style={{
+          textAlign: 'center', marginBottom: 10,
+          fontSize: countdown.urgent ? 13 : 12,
+          fontWeight: countdown.urgent ? 700 : 500,
+          fontFamily: 'var(--font-mono)',
+          color: countdown.urgent ? 'var(--accent-text)' : 'var(--text-mute)',
+          letterSpacing: '0.04em',
+        }}>
+          {countdown.urgent && '⚡ '}Starts in {countdown.label}
+        </div>
+      )}
+
       {/* Prediction or result */}
       {match.status === 'completed' && prediction ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, paddingTop: 8, borderTop: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, paddingTop: 8, borderTop: '1px solid var(--line)', flexWrap: 'wrap' }}>
           <span style={{ fontSize: 12, color: 'var(--text-mute)' }}>Your pick:</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
             {prediction.homeScore} – {prediction.awayScore}
           </span>
           <PtsTag pts={prediction.pointsEarned} rules={rules} />
+          {prediction.byAdmin && (
+            <span style={{
+              fontSize: 10, color: 'var(--text-mute)',
+              background: 'var(--bg-2)', border: '1px solid var(--line)',
+              padding: '2px 7px', borderRadius: 20,
+            }}>Entered by Admin</span>
+          )}
         </div>
       ) : match.status !== 'completed' ? (
         <PredictionForm
