@@ -21,8 +21,12 @@ export function StreamPlayer({ url, onClose }: Props) {
       return () => hls.destroy();
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Safari native HLS
+      const handleLoadedMetadata = () => { video.play().catch(() => {}); };
       video.src = url;
-      video.addEventListener('loadedmetadata', () => { video.play().catch(() => {}); });
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
     }
   }, [url]);
 
