@@ -32,6 +32,9 @@ const ICON_PATHS: Record<string, string> = {
   edit:         'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z',
   trash:        'M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6',
   clock:        'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 6v6l4 2',
+  info:         'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 16v-4M12 8h.01',
+  bracket:      'M3 5h4M3 19h4M7 5v7M7 19v-7M7 12h5M12 8h4v8h-4M16 12h4',
+  location:     'M12 21c-4-4-7-7.5-7-11a7 7 0 1 1 14 0c0 3.5-3 7-7 11ZM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
 };
 
 export interface IconProps {
