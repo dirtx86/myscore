@@ -26,6 +26,8 @@ export function StreamPlayer({ url, onClose }: Props) {
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
       return () => {
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.pause();
+        video.src = '';
       };
     }
   }, [url]);
