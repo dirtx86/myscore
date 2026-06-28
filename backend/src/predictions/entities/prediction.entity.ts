@@ -34,6 +34,9 @@ export class Prediction {
   @Column({ nullable: true, type: 'int' })
   pointsEarned: number;
 
+  @Column({ default: false })
+  byAdmin: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

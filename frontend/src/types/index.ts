@@ -80,6 +80,7 @@ export interface Prediction {
   homeScore: number;
   awayScore: number;
   pointsEarned?: number;
+  byAdmin?: boolean;
   createdAt: string;
   updatedAt: string;
   match?: Match;
