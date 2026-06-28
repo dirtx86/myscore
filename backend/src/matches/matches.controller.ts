@@ -3,9 +3,11 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
+import { MatchSyncService } from './match-sync.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { PublishResultDto } from './dto/publish-result.dto';
+import { UpdateStreamDto } from './dto/update-stream.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
@@ -17,6 +19,7 @@ import { TournamentsService } from '../tournaments/tournaments.service';
 export class MatchesController {
   constructor(
     private matchesService: MatchesService,
+    private matchSyncService: MatchSyncService,
     @Inject(forwardRef(() => LeaderboardService)) private leaderboardService: LeaderboardService,
     private tournamentsService: TournamentsService,
   ) {}
@@ -80,5 +83,17 @@ export class MatchesController {
   @Roles(UserRole.ADMIN)
   updateStatus(@Param('id') id: string, @Body() dto: UpdateMatchDto) {
     return this.matchesService.update(id, dto);
+  }
+
+  @Patch('matches/:id/stream')
+  @Roles(UserRole.ADMIN)
+  updateStream(@Param('id') id: string, @Body() dto: UpdateStreamDto) {
+    return this.matchesService.updateStream(id, dto);
+  }
+
+  @Post('tournaments/:tournamentId/matches/import')
+  @Roles(UserRole.ADMIN)
+  importMatches(@Param('tournamentId') tournamentId: string) {
+    return this.matchSyncService.importMatches(tournamentId);
   }
 }

@@ -70,4 +70,10 @@ export class Match {
 
   @Column({ nullable: true, type: 'int' })
   externalId: number | null;
+
+  @Column({ nullable: true, type: 'varchar' })
+  streamUrl: string | null;
+
+  @Column({ default: false })
+  streamPublished: boolean;
 }

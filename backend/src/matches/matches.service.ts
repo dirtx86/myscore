@@ -5,6 +5,7 @@ import { Match, MatchStatus } from './entities/match.entity';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { PublishResultDto } from './dto/publish-result.dto';
+import { UpdateStreamDto } from './dto/update-stream.dto';
 
 @Injectable()
 export class MatchesService {
@@ -62,7 +63,20 @@ export class MatchesService {
     return this.matchRepo.save(match);
   }
 
+  async updateStream(id: string, dto: UpdateStreamDto): Promise<Match> {
+    const match = await this.findById(id);
+    if (dto.published && !dto.url && !match.streamUrl) {
+      throw new BadRequestException('Cannot publish a stream without a URL');
+    }
+    if (dto.url !== undefined) match.streamUrl = dto.url ?? null;
+    match.streamPublished = dto.published;
+    return this.matchRepo.save(match);
+  }
+
   isLocked(match: Match, lockMinutes: number): boolean {
+    if (match.status === MatchStatus.LOCKED || match.status === MatchStatus.LIVE || match.status === MatchStatus.COMPLETED) {
+      return true;
+    }
     const lockAt = new Date(match.kickoffAt).getTime() - lockMinutes * 60 * 1000;
     return Date.now() >= lockAt;
   }
