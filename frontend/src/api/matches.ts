@@ -94,4 +94,21 @@ export const matchesApi = {
     const res = await apiClient.post<Match>('/matches', data);
     return res.data;
   },
+
+  importMatches: async (tournamentId: string): Promise<{ created: number; skipped: number; errors: string[] }> => {
+    const res = await apiClient.post(`/tournaments/${tournamentId}/matches/import`);
+    return res.data;
+  },
+
+  adminUpdateStream: async (
+    matchId: string,
+    url: string | null,
+    published: boolean,
+  ): Promise<Match> => {
+    const res = await apiClient.patch<Match>(`/matches/${matchId}/stream`, {
+      url: url || undefined,
+      published,
+    });
+    return res.data;
+  },
 };

@@ -71,6 +71,8 @@ export interface Match {
   status: MatchStatus;
   homeScore?: number;
   awayScore?: number;
+  streamUrl?: string | null;
+  streamPublished?: boolean;
 }
 
 export interface Prediction {
